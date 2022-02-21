@@ -5,9 +5,9 @@ export const Post = mongoose.model('Post', new mongoose.Schema({
     type: 'ObjectId',
     ref: 'Author'
   },
-  title: String
+  title: {type: String, default: ''}
 }));
 
 export const Author = mongoose.model('Author', new mongoose.Schema({
-  name: String
+  name: {type: String, default: ''}
 }));
