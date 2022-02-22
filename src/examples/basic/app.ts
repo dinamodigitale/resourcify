@@ -14,6 +14,9 @@ app.use(bodyParser.json())
 
 app.use('/posts', resourcify(Post, {
   pagination: true,
+  sort: {
+    _id: -1
+  },
   populate: {
     update: [{
       path: 'author',

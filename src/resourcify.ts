@@ -1,5 +1,8 @@
-import { Request, RequestHandler, response, Response, Router } from 'express';
-import { FilterQuery, Model, PopulateOptions } from "mongoose";
+import { Request, RequestHandler, Response, Router } from 'express';
+import { Model } from "mongoose";
+import { ResourcifyRouteHandler, ResourcifyOptionsInterface, ResourcifyActions } from './types';
+
+const logger = console
 
 function resposneError(req: Request, res: Response, err: any) {
   res
@@ -12,53 +15,6 @@ function resposneError(req: Request, res: Response, err: any) {
       stack: process.env.NODE_ENV === 'production' ? undefined : err.stack.split("\n"),
     });
 }
-
-
-interface QueryOptionsInterface {
-  index?(req: Request): FilterQuery<unknown>;
-  show?(req: Request): FilterQuery<unknown>;
-}
-
-type ResourcifyRouteHandler = (model: Model<unknown>, options: ResourcifyOptionsInterface) => RequestHandler
-type ResourcifyActions = 'show' | 'index' | 'delete' | 'update' | 'create' | 'resource';
-
-interface PoliciesOptionsInterface {
-  create?: RequestHandler | RequestHandler[]
-  index?: RequestHandler | RequestHandler[]
-  show?: RequestHandler | RequestHandler[]
-  update?: RequestHandler | RequestHandler[]
-  delete?: RequestHandler | RequestHandler[]
-}
-
-interface PopulateOptionsInterface {
-  index?: PopulateOptions | PopulateOptions[];
-  show?: PopulateOptions | PopulateOptions[];
-  create?: PopulateOptions | PopulateOptions[];
-  update?: string | PopulateOptions | PopulateOptions[];
-}
-
-interface ResourcifyOptionsInterface {
-  policies?: PoliciesOptionsInterface
-  readOnly?: Boolean
-  declareRouteFor?: Array<ResourcifyActions>
-  populate?: PopulateOptionsInterface
-  query?: QueryOptionsInterface
-  sort?: { [key: string]: -1 | 1 }
-  select?: { [x: string]: 1 | 0 } | string[] | string
-  pagination?: boolean
-
-  middleware?: {
-    create?: RequestHandler | RequestHandler[]
-    index?: RequestHandler | RequestHandler[]
-    show?: RequestHandler | RequestHandler[]
-    update?: RequestHandler | RequestHandler[]
-    delete?: RequestHandler | RequestHandler[]
-  }
-}
-
-
-const logger = console
-
 
 const index: ResourcifyRouteHandler = (model, options) => {
   return async (req, res) => {
@@ -162,9 +118,7 @@ const show: ResourcifyRouteHandler = (model, options = {}) => {
 const create: ResourcifyRouteHandler = (model, options = {}) => {
 
   return async (req, res) => {
-
     logger.info("-> Resourcify create", req.originalUrl, req.params, req.query);
-    console.log(req.body);
     try {
       let item = await model.create(req.body);
 
@@ -201,6 +155,7 @@ const remove: ResourcifyRouteHandler = (model: Model<unknown>, options: Resourci
 
   return async (req: Request, res: Response) => {
     try {
+      logger.info("-> Resourcify delete", req.originalUrl, req.params, req.query);
       const deleted = await model.findOneAndRemove({ _id: req.params.id });
       res.status(deleted ? 204 : 404).end()
     } catch (err: any) {
