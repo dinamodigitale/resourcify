@@ -13,7 +13,14 @@ export interface ResourcifyOptionsInterface {
     update?: RequestHandler | RequestHandler[]
     delete?: RequestHandler | RequestHandler[]
   }
+  /**
+   * If true, only the routes index, resource and show will be declared
+   */
   readOnly?: Boolean
+  /**
+   * Array of actions to be declared
+   * @example ['index', 'show']
+   */
   declareRouteFor?: Array<ResourcifyActions>
   populate?: {
     index?: PopulateOptions | PopulateOptions[];
@@ -21,13 +28,33 @@ export interface ResourcifyOptionsInterface {
     create?: PopulateOptions | PopulateOptions[];
     update?: string | PopulateOptions | PopulateOptions[];
   }
+  /**
+   * Mongoose FilterQuery to be passed for index or show
+   * @example {index: { $or: [{ name: 'John' }, { name: 'Jane' }] }}
+   */
   query?: {
-    index?(req: Request): FilterQuery<unknown>;
-    show?(req: Request): FilterQuery<unknown>;
+    index?: (req: Request) => FilterQuery<unknown>;
+    show?: (req: Request) => FilterQuery<unknown>;
   }
+  /**
+   * Sorting object
+   * @example {_id: -1}
+   */
   sort?: Record<string, 1 | -1>
+  /**
+   * Select fields (projection) object
+   * @example {_id: 1, name: 1}
+   * @example {password: 0}
+   */
   select?: Record<string, 1 | 0> | string[] | string
+  /**
+   * Enable pagination for index, will use req.body.offset and req.body.limit or req.query.offset and req.query.limit
+   */
   pagination?: boolean
+  /**
+   * Middleware to be executed before the route handler
+   * @example {create: [(req, res, next)=>next()]}
+   */
   middleware?: {
     create?: RequestHandler | RequestHandler[]
     index?: RequestHandler | RequestHandler[]

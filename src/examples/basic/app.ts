@@ -14,6 +14,7 @@ app.use(bodyParser.json())
 
 app.use('/posts', resourcify(Post, {
   pagination: true,
+  declareRouteFor: ['create', 'index', 'show', 'update', 'delete'],
   sort: {
     _id: -1
   },

@@ -4,16 +4,29 @@ import { ResourcifyRouteHandler, ResourcifyOptionsInterface, ResourcifyActions }
 
 const logger = console
 
-function resposneError(req: Request, res: Response, err: any) {
-  res
-    .status(err.name && err.name === 'ValidationError' ? 422 : 500)
-    .json({
-      message: err.message || 'Errore durante il salvataggio',
-      name: err.name,
-      validation: err.name === 'ValidationError' ? err : undefined,
-      fileName: process.env.NODE_ENV === 'production' ? undefined : __filename,
-      stack: process.env.NODE_ENV === 'production' ? undefined : err.stack.split("\n"),
-    });
+function resposneError(req: Request, res: Response, err: Error | unknown) {
+  if(err instanceof Error) {
+    const statusCode = err.name && err.name === 'ValidationError' ? 422 : 500
+    const message  = err && err.message ? err : String(err);
+    const name = err && err.name ? err.name : 'ResourcifyServerError'
+    res
+      .status(statusCode)
+      .json({
+        message,
+        name: name,
+        validation: name === 'ValidationError' ? err : undefined,
+        fileName: process.env.NODE_ENV === 'production' ? undefined : __filename,
+        stack: process.env.NODE_ENV === 'production' ? undefined : err.stack?.split("\n"),
+      });
+  } else {
+    res
+      .status(500)
+      .json({
+        message: err,
+        name: 'ResourcifyServerError',
+        fileName: process.env.NODE_ENV === 'production' ? undefined : __filename
+      });
+  }
 }
 
 const index: ResourcifyRouteHandler = (model, options) => {
