@@ -190,8 +190,8 @@ export function resourcify(model: Model<unknown>, options: ResourcifyOptionsInte
   if (declarableRoute('index', options)) {
     router.get('/', LoggerMiddleware, options.middleware?.index || [], options.policies?.index || [], index(model, options));
   }
-
-  router.post('/new', LoggerMiddleware, (req, res) => res.json(new model()));
+  
+  // router.post('/new', LoggerMiddleware, (req, res) => res.json(new model()));
 
   if (declarableRoute('resource', options)) {
     router.post('/resource', LoggerMiddleware, options.middleware?.index || [], options.policies?.index || [], index(model, options));
