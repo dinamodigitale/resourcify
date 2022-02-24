@@ -1,14 +1,16 @@
+import { randomBytes } from 'crypto';
 import { Request, RequestHandler, Response, Router } from 'express';
 import { Model } from "mongoose";
-import { ResourcifyRouteHandler, ResourcifyOptionsInterface, ResourcifyActions } from './types';
-
-const logger = console
+import { ResourcifyActions, ResourcifyOptionsInterface, ResourcifyRouteHandler } from './types';
 
 function resposneError(req: Request, res: Response, err: Error | unknown) {
   if(err instanceof Error) {
+    //TODO Better status code handler, we need to know if it's a mongoose/mongo error or something else
     const statusCode = err.name && err.name === 'ValidationError' ? 422 : 500
     const message  = err && err.message ? err.message : String(err);
     const name = err && err.name ? err.name : 'ResourcifyServerError'
+    console.error('XX [%s] ERR %s %s. %s', res.locals.reqId || 'NA', name, message, statusCode);
+    
     res
       .status(statusCode)
       .json({
@@ -31,8 +33,6 @@ function resposneError(req: Request, res: Response, err: Error | unknown) {
 
 const index: ResourcifyRouteHandler = (model, options) => {
   return async (req, res) => {
-
-    logger.info("-> Resourcify index", req.originalUrl, req.params, req.query);
     req.body = req.body || {};
     const q = options.query && options.query.index ? await options.query.index(req) : {};
 
@@ -41,7 +41,7 @@ const index: ResourcifyRouteHandler = (model, options) => {
     let find = model.find(q);
     const limit = +(req.body.limit || req.query.limit) || 50
     const offset = +(req.body.offset || req.query.offset) || 0
-    if (options.pagination) {
+    if (options.pagination || req.body.pagination) {
       const totalRecords = await model.find(q).select('_id').limit(process.env.PAGINATION_MAX_LIMIT ? +process.env.PAGINATION_MAX_LIMIT : 100000).countDocuments();
       const pagination = {
         'x-limit': limit,
@@ -91,7 +91,6 @@ const index: ResourcifyRouteHandler = (model, options) => {
     try {
       res.json(await find)
     } catch (err) {
-      logger.error(err);
       resposneError(req, res, err);
     }
   };
@@ -100,9 +99,6 @@ const index: ResourcifyRouteHandler = (model, options) => {
 const show: ResourcifyRouteHandler = (model, options = {}) => {
 
   return async (req, res) => {
-
-    logger.info("-> Resourcify show", req.originalUrl, req.params, req.query);
-
     const q = {
       _id: req.params.id
     };
@@ -121,7 +117,6 @@ const show: ResourcifyRouteHandler = (model, options = {}) => {
       let item = await find;
       res.status(item ? 200 : 404).json(item || { message: 'not-found' });
     } catch (err: any) {
-      logger.error(err);
       resposneError(req, res, err);
     }
   }
@@ -131,7 +126,6 @@ const show: ResourcifyRouteHandler = (model, options = {}) => {
 const create: ResourcifyRouteHandler = (model, options = {}) => {
 
   return async (req, res) => {
-    logger.info("-> Resourcify create", req.originalUrl, req.params, req.query);
     try {
       let item = await model.create(req.body);
 
@@ -140,7 +134,6 @@ const create: ResourcifyRouteHandler = (model, options = {}) => {
       }
       res.status(201).json(item);
     } catch (err: any) {
-      logger.error(err);
       resposneError(req, res, err);
     }
   }
@@ -150,7 +143,6 @@ const update: ResourcifyRouteHandler = (model, options = {}) => {
 
   return async (req, res) => {
     try {
-      logger.info("-> Resourcify update", req.originalUrl, req.params, req.query);
       const doc = await model.findById(req.params.id)
       if (!doc) {
         return res.status(404).json({ message: 'not-found' })
@@ -164,15 +156,13 @@ const update: ResourcifyRouteHandler = (model, options = {}) => {
   }
 };
 
-const remove: ResourcifyRouteHandler = (model: Model<unknown>, options: ResourcifyOptionsInterface = {}) => {
+const remove: ResourcifyRouteHandler = (model) => {
 
   return async (req: Request, res: Response) => {
     try {
-      logger.info("-> Resourcify delete", req.originalUrl, req.params, req.query);
       const deleted = await model.findOneAndRemove({ _id: req.params.id });
       res.status(deleted ? 204 : 404).end()
     } catch (err: any) {
-      logger.error(err);
       resposneError(req, res, err);
     }
   }
@@ -183,7 +173,14 @@ export function resourcify(model: Model<unknown>, options: ResourcifyOptionsInte
   const router = Router()
 
   const LoggerMiddleware: RequestHandler = async (req, res, next) => {
-    process.env.DEBUG && logger.info('~> request %s %s', req.method, req.originalUrl);
+    const reqId = randomBytes(8).toString("hex");
+    // Add the request Id to locals to be shared for future console logs
+    res.locals.reqId = reqId;
+    const startTime = +new Date();
+    console.log('~> [%s] REQ %s %s collection:%s params:%s query:%s', reqId, req.method, req.originalUrl, model.collection.name, req.params, req.query);
+    res.on('close', () => {
+      console.log('<~ [%s] RES %s %s %s time:%sms', reqId, res.statusCode, req.method, req.originalUrl, +new Date() - startTime);
+    })
     next();
   }
 
