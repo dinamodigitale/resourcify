@@ -1,6 +1,7 @@
-import express from 'express'
+import bodyParser from 'body-parser';
+import express from 'express';
 import mongoose from 'mongoose';
-import {resourcify} from '../../resourcify';
+import { resourcify } from '../../resourcify';
 import { Author, Post } from './models';
 
 const app = express()
@@ -8,21 +9,37 @@ const port = 3000
 
 mongoose.connect('mongodb://localhost/test');
 
-const bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-app.use('/posts', resourcify(Post, {
-  pagination: true,
-  declareRouteFor: ['create', 'index', 'show', 'update', 'delete'],
+app.use('/admin', resourcify(Post, {
   sort: {
     _id: -1
   },
   populate: {
+    show: [{
+      path: 'author',
+    }],
     update: [{
       path: 'author',
     }]
-  }
+  },
+  select: {title: 1}
+}))
+
+app.use('/posts', resourcify(Post, {
+  declareRouteFor: ['index', 'show'],
+  sort: {
+    _id: -1
+  },
+  populate: {
+    show: [{
+      path: 'author',
+    }],
+    update: [{
+      path: 'author',
+    }]
+  },
+  select: {title: 1}
 }))
 
 app.use('/authors', resourcify(Author, {
