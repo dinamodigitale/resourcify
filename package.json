@@ -1,6 +1,6 @@
 {
   "name": "@dinamodigitale/resourcify",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Resourcify is a library for creating RESTful APIs for mongoose models in express",
   "main": "./dist/cjs/resourcify.js",
   "module": "./dist/esm/resourcify.js",
