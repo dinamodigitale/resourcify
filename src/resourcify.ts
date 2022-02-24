@@ -7,7 +7,7 @@ const logger = console
 function resposneError(req: Request, res: Response, err: Error | unknown) {
   if(err instanceof Error) {
     const statusCode = err.name && err.name === 'ValidationError' ? 422 : 500
-    const message  = err && err.message ? err : String(err);
+    const message  = err && err.message ? err.message : String(err);
     const name = err && err.name ? err.name : 'ResourcifyServerError'
     res
       .status(statusCode)
