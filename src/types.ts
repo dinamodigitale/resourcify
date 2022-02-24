@@ -6,6 +6,10 @@ export type ResourcifyActions = 'show' | 'index' | 'delete' | 'update' | 'create
 
 
 export interface ResourcifyOptionsInterface {
+  /**
+   * Policies list, this is deisgnated to be used for authorization only like roles, auth, etc.
+   * @example create: [IsAuthorized, (req,res,next) => req.something ? next() : res.status(401).send('Unauthorized')]
+   */
   policies?: {
     create?: RequestHandler | RequestHandler[]
     index?: RequestHandler | RequestHandler[]
@@ -22,6 +26,10 @@ export interface ResourcifyOptionsInterface {
    * @example ['index', 'show']
    */
   declareRouteFor?: Array<ResourcifyActions>
+  /**
+   * Mongoose populate options
+   * @example {index: [{ path: 'user', select: 'name' }]}
+   */
   populate?: {
     index?: PopulateOptions | PopulateOptions[];
     show?: PopulateOptions | PopulateOptions[];
