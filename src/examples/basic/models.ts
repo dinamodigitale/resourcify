@@ -5,7 +5,7 @@ export const Post = mongoose.model('Post', new mongoose.Schema({
     type: 'ObjectId',
     ref: 'Author'
   },
-  title: {type: String, default: ''}
+  title: {type: String, default: '', minlength: 10}
 }));
 
 export const Author = mongoose.model('Author', new mongoose.Schema({

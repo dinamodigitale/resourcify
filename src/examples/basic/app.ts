@@ -27,7 +27,7 @@ app.use('/admin', resourcify(Post, {
 }))
 
 app.use('/posts', resourcify(Post, {
-  declareRouteFor: ['index', 'show'],
+  //declareRouteFor: ['index', 'show'],
   sort: {
     _id: -1
   },
