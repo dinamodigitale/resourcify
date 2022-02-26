@@ -1,16 +1,16 @@
 {
   "name": "@dinamodigitale/resourcify",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Resourcify is a library for creating RESTful APIs for mongoose models in express",
-  "main": "./dist/cjs/resourcify.js",
   "module": "./dist/esm/resourcify.js",
   "files": [
     "dist/"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf ./dist",
     "build": "tsc -p tsconfig.json && tsc -p tsconfig-cjs.json",
-    "prepublish": "npm run build",
+    "prepublish": "npm run clean && npm run build",
     "publish": "npm publish --access public"
   },
   "repository": {
