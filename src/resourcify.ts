@@ -79,15 +79,6 @@ const index: ResourcifyRouteHandler = (model, options) => {
       find = find.select(options.select);
     }
 
-    if (req.body.limit) {
-      find = find.limit(parseInt(req.body.limit))
-    }
-
-    if (req.body.offset) {
-      find = find.skip(parseInt(req.body.offset))
-    }
-
-
     try {
       res.json(await find)
     } catch (err) {
