@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 
+interface AuthorInterface  {
+  name: string
+}
+
 export const Post = mongoose.model('Post', new mongoose.Schema({
   author: {
     type: 'ObjectId',
@@ -8,6 +12,7 @@ export const Post = mongoose.model('Post', new mongoose.Schema({
   title: {type: String, default: '', minlength: 10}
 }));
 
-export const Author = mongoose.model('Author', new mongoose.Schema({
+
+export const Author = mongoose.model('Author', new mongoose.Schema<AuthorInterface>({
   name: {type: String, default: ''}
 }));

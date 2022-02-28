@@ -1,7 +1,7 @@
 import { Request, RequestHandler } from 'express';
 import { FilterQuery, Model, PopulateOptions } from "mongoose";
 
-export type ResourcifyRouteHandler = (model: Model<unknown>, options: ResourcifyOptionsInterface) => RequestHandler
+export type ResourcifyRouteHandler<T = any> = (model: Model<T>, options: ResourcifyOptionsInterface) => RequestHandler
 export type ResourcifyActions = 'show' | 'index' | 'delete' | 'update' | 'create' | 'resource';
 
 

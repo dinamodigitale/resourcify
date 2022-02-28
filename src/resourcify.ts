@@ -160,7 +160,7 @@ const remove: ResourcifyRouteHandler = (model) => {
 };
 
 
-export function resourcify(model: Model<unknown>, options: ResourcifyOptionsInterface = {}) {
+export function resourcify<T>(model: Model<T>, options: ResourcifyOptionsInterface = {}) {
   const router = Router()
 
   const LoggerMiddleware: RequestHandler = async (req, res, next) => {
