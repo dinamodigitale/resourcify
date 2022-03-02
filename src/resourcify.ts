@@ -3,6 +3,13 @@ import { Request, RequestHandler, Response, Router } from 'express';
 import { Model } from "mongoose";
 import { ResourcifyActions, ResourcifyOptionsInterface, ResourcifyRouteHandler } from './types';
 
+
+/**
+ * Standard error handler for resourcify response
+ * @param req Express request object
+ * @param res Express reposne object
+ * @param err Error instance
+ */
 function resposneError(req: Request, res: Response, err: Error | unknown) {
   if(err instanceof Error) {
     //TODO Better status code handler, we need to know if it's a mongoose/mongo error or something else
@@ -31,7 +38,13 @@ function resposneError(req: Request, res: Response, err: Error | unknown) {
   }
 }
 
-const index: ResourcifyRouteHandler = (model, options) => {
+/**
+ * Returns index route handler
+ * @param model Mongoose model
+ * @param options Resourcify options
+ * @returns RequestHandler
+ */
+export const index: ResourcifyRouteHandler = (model, options) => {
   return async (req, res) => {
     req.body = req.body || {};
     const q = options.query && options.query.index ? await options.query.index(req) : {};
@@ -87,7 +100,13 @@ const index: ResourcifyRouteHandler = (model, options) => {
   };
 }
 
-const show: ResourcifyRouteHandler = (model, options = {}) => {
+/**
+ * Returns show route handler
+ * @param model Mongoose model
+ * @param options Resourcify options
+ * @returns RequestHandler
+ */
+export const show: ResourcifyRouteHandler = (model, options = {}) => {
 
   return async (req, res) => {
     const q = {
@@ -114,7 +133,14 @@ const show: ResourcifyRouteHandler = (model, options = {}) => {
 
 };
 
-const create: ResourcifyRouteHandler = (model, options = {}) => {
+
+/**
+ * Returns create route handler
+ * @param model Mongoose model
+ * @param options Resourcify options
+ * @returns RequestHandler
+ */
+export const create: ResourcifyRouteHandler = (model, options = {}) => {
 
   return async (req, res) => {
     try {
@@ -130,7 +156,14 @@ const create: ResourcifyRouteHandler = (model, options = {}) => {
   }
 };
 
-const update: ResourcifyRouteHandler = (model, options = {}) => {
+
+/**
+ * Returns update route handler
+ * @param model Mongoose model
+ * @param options Resourcify options
+ * @returns RequestHandler
+ */
+export const update: ResourcifyRouteHandler = (model, options = {}) => {
 
   return async (req, res) => {
     try {
@@ -147,7 +180,13 @@ const update: ResourcifyRouteHandler = (model, options = {}) => {
   }
 };
 
-const remove: ResourcifyRouteHandler = (model) => {
+
+/**
+ * Returns remove route handler
+ * @param model Mongoose model
+ * @returns RequestHandler
+ */
+export const remove: ResourcifyRouteHandler = (model) => {
 
   return async (req: Request, res: Response) => {
     try {
